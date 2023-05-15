@@ -1,4 +1,13 @@
 class BlockingInfoDS:
+    # This class is used for efficiently checking whether two squares are blocked by another square or not
+    # This is highly important when checking whether a piece is in a position to capture another piece
+    # Simply checking whether the two squares are aligned is not enough
+    # To solve this, there are linked list structures for every occupied row, column and diagonal in the start configuration
+    
+    # Now checking can be done in constant time, instead of linear time for iterating full rows/columns/diagonals
+
+    # Each square has a BlockingInfoDS-object with information regarding the next and prev for each linked list the square is part of
+
     def __init__(self):
         self.hor = Node()
         self.vert = Node()

@@ -1,7 +1,7 @@
-import state, pieces
+from pieces import Piece
+from state import State
+from utils import Square
 
 class Instance():
-    k, l: int # board size
-    d: int # nr of captures
-    s0: state.State # the initial state
-    P: list[pieces.Piece] # list of the pieces
+    def __init__(self, s0: State):
+        self.s0 = s0

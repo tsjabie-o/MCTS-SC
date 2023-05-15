@@ -1,4 +1,4 @@
-from square import Square
+from utils import Square
 
 class Piece():
     def __init__(self, s, c):
@@ -16,7 +16,7 @@ class Queen(Piece):
             return False
         s1 = self.square
         s2 = p.square
-        return s1.alignVer(s2) or s1.alignHor(s2) or s1.alignDia(s2)
+        return s1.alignVer(s2) or s1.alignHor(s2) or s1.alignDia1(s2) or s1.alignDia2(s2)
         
 class Rook(Piece):
     def __init__(self, s, c):
@@ -42,7 +42,7 @@ class Bischop(Piece):
             return False
         s1 = self.square
         s2 = p.square
-        return s1.alignDia(s2)
+        return s1.alignDia1(s2) or s1.alignDia2(s2)
 
 class Knight(Piece):
     def __init__(self, s, c):
