@@ -1,7 +1,7 @@
-import state, solochess
+import state, pieces
 
 class Instance():
     k, l: int # board size
     d: int # nr of captures
     s0: state.State # the initial state
-    P: list[solochess.Piece] # list of the pieces
+    P: list[pieces.Piece] # list of the pieces
