@@ -1,23 +1,58 @@
-from bids import BlockingInfoDS
+class Utils():
+    @classmethod
+    def alignVer(cls, s1, s2, ps, square):
 
-class Square():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.bids = BlockingInfoDS()
+        # check if same x coordinate
+        if s1.x != s2.x:
+            return False
 
-    def alignHor(self, s):
-        # Check whether two squares align horizontally on the board
-        return self.y == s.y and (self.bids.hor.next == s.bids.hor or self.bids.hor.prev == s.bids.hor)
+        # check if any piece in between
+        y_low = min(s1.y, s2.y)
+        y_high = max(s1.y, s2.y)
+        for p in self.ps:
+            if self.square[p].x == s1.x:
+                if y_low < self.square[p].y < y_high:
+                    return False
+        return True
+
+    def alignHor(self, p1, p2):
+        s1 = self.square[p1]
+        s2 = self.square[p2]
         
-    def alignVer(self, s):
-        # Check whether two squares align vertically on the board
-        return self.x == s.x and (self.bids.vert.next == s.bids.vert or self.bids.vert.prev == s.bids.vert)
+        # check if same y coordinate
+        if s1.y != s2.y:
+            return False
 
-    def alignDia1(self, s):
-        # Check whether two squares align diagonally on the board
-        return self.x + self.y == s.x + s.y and (self.bids.dig1.next == s.bids.dig1 or self.bids.dig1.prev == s.bids.dig1)
+        # check if any piece in between
+        x_low = min(s1.x, s2.x)
+        x_high = max(s1.x, s2.x)
+        for p in self.ps:
+            if self.square[p].y == s1.y:
+                if x_low < self.square[p].x < x_high:
+                    return False
+        return True
 
-    def alignDia2(self, s):
-        # Check whether two squares align diagonally on the board
-        return self.x - self.y == s.x - s.y and (self.bids.dig2.next == s.bids.dig2 or self.bids.dig2.prev == s.bids.dig2)
+    def alignDia(self, p1, p2):
+        s1 = self.square[p1]
+        s2 = self.square[p2]
+        x_low = min(s1.x, s2.x)
+        x_high = max(s1.x, s2.x)
+
+        # check alignment 1 (left-up to right-down)
+        align1 = s1.x + s1.y == s2.x + s2.y
+
+        # check alignment 2 (left-down to right-up)
+        align2 = s1.x - s1.y == s2.x - s2.y
+
+        # check if any piece in between p1 and p2 on the diagonal
+        if align1 or align2:
+            for p in self.ps:
+                s = self.square[p]
+                if (align1 and s.x + s.y == s2.x + s2.y) or (align2 and s.x - s.y == s2.x - s2.y):
+                    if x_low < s.x < x_high:
+                        # piece in between
+                        return False
+            return True
+
+        # they are not on the same diagonal
+        return False
