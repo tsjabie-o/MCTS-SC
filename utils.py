@@ -56,3 +56,8 @@ class Utils():
 
         # they are not on the same diagonal
         return False
+    
+class Square():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y

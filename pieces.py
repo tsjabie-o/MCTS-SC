@@ -1,5 +1,3 @@
-from utils import Square
-
 class Piece():
     def __init__(self, t):
         match t:

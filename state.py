@@ -1,10 +1,13 @@
-from pieces import *
+from pieces import Piece
 
 class State():
-    def __init__(self, ps: set[Piece], square: dict, caps: dict):
+    def __init__(self, ps: set[Piece], square: dict, caps = None):
         self.ps = ps
         self.square = square
-        self.caps = caps
+        if caps is not None:
+            self.caps = caps
+        else:
+            self.caps = {p: 2 for p in self.ps}
 
     def getActions(self):
         actions = []
@@ -135,22 +138,11 @@ class State():
                     return True
             case 5:
                 # Pawn
-                if self.square[p2].x == self.square[p1].x - 1 and self.square[p2].y == self.square[p1].y - 1:
+                if self.square[p2].x == self.square[p1].x - 1 and self.square[p2].y == self.square[p1].y + 1:
                     return True
-                elif self.square[p2].x == self.square[p1].x + 1 and self.square[p2].y == self.square[p1].y - 1:
+                elif self.square[p2].x == self.square[p1].x + 1 and self.square[p2].y == self.square[p1].y + 1:
                     return True
                 return False
             case 6:
                 # King
                 return abs(self.square[p1].x - self.square[p2].x) <= 1 and abs(self.square[p1].y - self.square[p2].y) <= 1
-
-if __name__ == "__main__":
-    p1 = Pawn()
-    p2 = King()
-    p3 = Queen()
-    square = {p1: Square(3, 1), p2: Square(1, 3), p3: Square(4, 4)}
-    caps = {p1: 2, p2: 2, p3: 2}
-    s1 = State({p1, p2, p3}, square, caps)
-    
-    res = s1.alignDia(p1, p2)
-    print(res)
