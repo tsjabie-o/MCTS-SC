@@ -3,19 +3,18 @@ from pieces import Piece
 from state import State
 from utils import Square
 
-class TestAlignment(unittest.TestCase):
-    def setUp(self):
+class TestState(unittest.TestCase):
+    def alignSetUp(self):
         self.p1 = Piece("P")
         self.p2 = Piece("P")
         self.p3 = Piece("P")
         ps = {self.p1, self.p2, self.p3}
         square = dict()
         self.s = State(ps, square)
-
-    def tearDown(self):
-        self.s.square.clear()
     
     def test_alignVer(self):
+        self.alignSetUp()
+
         # normal alignment
         self.s.square = {
             self.p1: Square(1,1),
@@ -28,7 +27,13 @@ class TestAlignment(unittest.TestCase):
         # piece in between
         self.assertFalse(self.s.alignVer(self.p1, self.p3))
 
+        # cleanup
+        self.s.square.clear()
+
+
     def test_alignHor(self):
+        self.alignSetUp()
+
         # normal alignment
         self.s.square = {
             self.p1: Square(1, 1),
@@ -41,7 +46,12 @@ class TestAlignment(unittest.TestCase):
         # piece in between
         self.assertFalse(self.s.alignHor(self.p1, self.p3))
 
+        # cleanup
+        self.s.square.clear()
+
     def test_alignDia(self):
+        self.alignSetUp()
+
         # left-up to right-down
         # aligned
         self.s.square = {
@@ -77,7 +87,9 @@ class TestAlignment(unittest.TestCase):
         self.assertTrue(self.s.alignDia(self.p2, self.p3))
         self.assertFalse(self.s.alignDia(self.p1, self.p3))
 
-class TestCaptures(unittest.TestCase):
+        # clean up
+        self.s.square.clear()
+
     def test_side(self):
         q = Piece("Q")
         k = Piece("K")
@@ -200,6 +212,23 @@ class TestCaptures(unittest.TestCase):
         self.assertTrue(s.valCap(k, p1))
         self.assertFalse(s.valCap(k, p2))
 
+    def test_nextState(self):
+        p1 = Piece("P")
+        p2 = Piece("P")
+
+        square = {
+            p1: Square(3,3),
+            p2: Square(4, 4)
+        }
+
+        s0 = State({p1, p2}, square)
+        s2 = s0.nextState(p1, p2)
+
+        self.assertNotIn(p2, s2.ps)
+        self.assertNotIn(p2, s2.square)
+        self.assertNotIn(p2, s2.caps)
+        self.assertEqual((s2.square[p1].x, s2.square[p1].y), (4,4))
+        self.assertEqual(s2.caps[p1], 1)
 
 if __name__ == "__main__":
     unittest.main()
