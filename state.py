@@ -15,6 +15,7 @@ class State():
             for p2 in self.ps:
                 if self.valCap(p1, p2):
                     actions.append((p1, p2))
+        return actions
 
     def transition(self):
         actions = self.getActions()

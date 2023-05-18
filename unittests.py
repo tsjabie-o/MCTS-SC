@@ -2,6 +2,7 @@ import unittest
 from pieces import Piece
 from state import State
 from utils import Square
+from mcts import MCTS, Node
 
 class TestState(unittest.TestCase):
     def alignSetUp(self):
@@ -204,7 +205,7 @@ class TestState(unittest.TestCase):
         p2 = Piece("P")
         square = {
             k: Square(3,3),
-            p1: Square(4, 3),
+            p1: Square(3, 4),
             p2: Square(4, 5)
         }
         s = State({k, p1, p2}, square)
@@ -229,6 +230,87 @@ class TestState(unittest.TestCase):
         self.assertNotIn(p2, s2.caps)
         self.assertEqual((s2.square[p1].x, s2.square[p1].y), (4,4))
         self.assertEqual(s2.caps[p1], 1)
+
+class TestMCTS(unittest.TestCase):
+    def setUp(self):
+        self.mcts = MCTS()
+
+    def test_oneStepWin(self):
+        k = Piece("K")
+        p = Piece("P")
+
+        square = {
+            k: Square(3, 3),
+            p: Square(3, 4)
+        }
+
+        s0 = State({k, p}, square)
+
+        self.mcts.setup(s0)
+        res = self.mcts.run()
+        self.assertEqual(len(res), 2)
+
+class TestNode(unittest.TestCase):
+    def test_getNexts(self):
+        k = Piece("K")
+        p = Piece("P")
+
+        square = {
+            k: Square(3, 3),
+            p: Square(3, 4)
+        }
+
+        s0 = State({k, p}, square)
+
+        n = Node(s0, None)
+        n.getNexts()
+        self.assertTrue(len(n.nexts) == 1)
+        self.assertTrue(n.nexts[0].parent == n)
+
+        k = Piece("K")
+
+        square = {
+            k: Square(3, 3)
+        }
+
+        s0 = State({k}, square)
+
+        n = Node(s0, None)
+        n.getNexts()
+        self.assertTrue(len(n.nexts) == 0)
+
+    def test_getValue(self):
+        k = Piece("K")
+        square = {k: Square(3,3)}
+        s = State({k}, square)
+
+        n = Node(s, None)
+        self.assertEqual(n.getValue(), 1)
+
+        p = Piece("P")
+        square = {p: Square(3,3)}
+        s = State({p}, square)
+
+        n = Node(s, None)
+        self.assertEqual(n.getValue(), 0)
+
+    def test_clearNexts(self):
+        k = Piece("K")
+        p = Piece("P")
+
+        square = {
+            k: Square(3, 3),
+            p: Square(3, 4)
+        }
+
+        s0 = State({k, p}, square)
+
+        n = Node(s0, None)
+        n.getNexts()
+        n2 = n.nexts[0]
+        n.clearNexts()
+        self.assertEqual(len(n.nexts), 0)
+        self.assertIsNotNone(n2)
 
 if __name__ == "__main__":
     unittest.main()

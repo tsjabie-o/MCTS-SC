@@ -1,5 +1,6 @@
 from math import sqrt, log
 from state import State
+import random as rd
 
 class Node():
     def __init__(self, s: State, parent):
@@ -21,15 +22,19 @@ class Node():
         return 1 if self.s.isGoal() else 0
 
 class MCTS():
-    def __init__(self, root: Node, c):
-        self.root = root
+    def __init__(self, c = 2):
         self.c = c
-        self.sol = False
         self.vals = dict()
         self.ns = dict()
 
+    def setup(self, s0):
+        self.root = Node(s0, None)
+        self.ns[self.root] = 0
+        self.vals[self.root] = 0
+
+
     def run(self):
-        while not self.sol:
+        while True:
             cur = self.root
             while len(cur.nexts) != 0:
                 # select child with highest uct metric
@@ -38,10 +43,13 @@ class MCTS():
                 cur = child
 
             # at a leaf node
-            if cur.n == 0:
+            if self.ns[cur] == 0:
                 # no sims yet, do sim
-                v = self.simulate(cur)
-                self.backprop(cur, v)
+                (v, end) = self.simulate(cur)
+                if v == 1:
+                    return self.getroute(end)
+                else:
+                    self.backprop(cur, v)
             else:
                 # has been simulated, expand node
                 self.expand(cur)
@@ -52,18 +60,27 @@ class MCTS():
                 cur = child
                 
                 # simulate that child
-                v = self.simulate(cur)
+                (v, end) = self.simulate(cur)
                 if v == 1:
-                    self.sol = True
-                self.backprop(cur, v)
+                    return self.getroute(end)
+                else:
+                    self.backprop(cur, v)
 
+    def getroute(self, node: Node):
+        cur = node
+        route = [cur.s]
+        while cur.parent is not None:
+            cur = cur.parent
+            route.append(cur.s)
+        route.reverse()
+        return route
 
     def simulate(self, node: Node):
         node.getNexts()
         cur = node
         while(len(cur.nexts) != 0):
             # select best node from nexts based on heuristics
-            temp = cur.nexts[0] # placeholder
+            temp = rd.choice(cur.nexts) # for now, random choice of action
             cur.clearNexts() # keep mem usage low
             cur = temp
             cur.getNexts()
@@ -73,11 +90,11 @@ class MCTS():
         
         # prune simulated tree
         node.clearNexts()
-        return v
+        return (v, cur)
 
     def backprop(self, node: Node, v):
         cur = node
-        while cur.parent != None:
+        while cur.parent is not None:
             self.vals[cur] += v
             self.ns[cur] += 1
             cur = cur.parent
