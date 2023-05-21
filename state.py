@@ -19,7 +19,7 @@ class State():
 
     def transition(self):
         actions = self.getActions()
-        nexts = [self.nextState(p1, p2) for (p1, p2) in actions]
+        nexts = {(p1, p2): self.nextState(p1, p2) for (p1, p2) in actions}
         return nexts
 
     def nextState(self, p1: Piece, p2: Piece):
@@ -147,3 +147,9 @@ class State():
             case 6:
                 # King
                 return abs(self.square[p1].x - self.square[p2].x) <= 1 and abs(self.square[p1].y - self.square[p2].y) <= 1
+    
+    def __repr__(self) -> str:
+        repr = ""
+        for p in self.ps:
+            repr += f"{p} at square {self.square[p]}, with {self.caps[p]} captures left\n"
+        return repr

@@ -25,3 +25,14 @@ class Piece():
                 # King
                 self.type = 6
                 self.rank = 99
+        self.toType = {
+            1: "Queen",
+            2: "Rook",
+            3: "Bischop",
+            4: "Knight",
+            5: "Pawn",
+            6: "King"
+        }
+
+    def __repr__(self) -> str:
+        return f"{self.type} ({self.toType[self.type]})"

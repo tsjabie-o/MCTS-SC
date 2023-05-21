@@ -249,6 +249,75 @@ class TestMCTS(unittest.TestCase):
         self.mcts.setup(s0)
         res = self.mcts.run()
         self.assertEqual(len(res), 2)
+    
+    def test_instantWin(self):
+        k = Piece("K")
+
+        square = {
+            k: Square(3, 3)
+        }
+
+        s0 = State({k}, square)
+
+        self.mcts.setup(s0)
+        res = self.mcts.run()
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0], s0)
+
+    def test_endIsGoal(self):
+        k = Piece("K")
+        p = Piece("P")
+
+        square = {
+            k: Square(3, 3),
+            p: Square(3, 4)
+        }
+
+        s0 = State({k, p}, square)
+        self.mcts.setup(s0) 
+        res = self.mcts.run()
+        self.assertTrue(len(res[1].ps) == 1)
+        self.assertTrue(res[1].isGoal)
+
+    def test_WrongMovePoss(self):
+        k = Piece("K")
+        n1 = Piece("N")
+        n2 = Piece("N")
+
+        square = {
+            k: Square(3, 1),
+            n1: Square(3, 2),
+            n2: Square(2, 4)
+        }
+
+        s0 = State({k, n1, n2}, square)
+        self.mcts.setup(s0)
+        res = self.mcts.run()
+
+        self.assertTrue(len(res) == 3)
+        self.assertTrue(res[2].isGoal())
+
+    def test_hardLvl5(self):
+        k = Piece("K")
+        r = Piece("R")
+        q = Piece("Q")
+        b1 = Piece("B")
+        b2 = Piece("B")
+        b3 = Piece("B")
+
+        square = {
+            k: Square(2, 6),
+            r: Square(3, 8),
+            q: Square(2, 7),
+            b1: Square(1, 8),
+            b2: Square(7, 2),
+            b3: Square(3, 3)
+        }
+
+        s0 = State({k, r, q, b1, b2, b3}, square)
+
+        self.mcts.setup(s0)
+        res = self.mcts.run()
 
 class TestNode(unittest.TestCase):
     def test_getNexts(self):
@@ -262,7 +331,7 @@ class TestNode(unittest.TestCase):
 
         s0 = State({k, p}, square)
 
-        n = Node(s0, None)
+        n = Node(s0, None, None)
         n.getNexts()
         self.assertTrue(len(n.nexts) == 1)
         self.assertTrue(n.nexts[0].parent == n)
