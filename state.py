@@ -1,6 +1,16 @@
 from pieces import Piece
 
 class State():
+    """A class which represents a state in a Solo Chess game.
+    
+    A state object holds all the information about a state such as decribed in the mathematical model of Solo Chess in the paper.
+    
+    Attributes:
+        ps: the set of pieces in this state
+        square: a dictionary which maps a piece to a square
+        caps: a dictionary which maps a piece to the amount of captures it has left
+    """
+
     def __init__(self, ps: set[Piece], square: dict, caps = None):
         self.ps = ps
         self.square = square

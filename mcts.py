@@ -37,15 +37,12 @@ class MCTS():
 
     def run(self):
         while True:
-            print("STARTING EXPLORATION\n\n")
             cur = self.root
-            print(f"Root state: \n{cur.s}\n")
             while len(cur.nexts) != 0:
                 # select child with highest uct metric
                 ucts = {node: self.uct(node) for node in cur.nexts}
                 child = max(ucts, key=ucts.get)
                 cur = child
-                print(f"Taking action {cur.prevAction} into state: \n{cur.s}\n")
 
 
             # at a leaf node
@@ -53,14 +50,11 @@ class MCTS():
                 # no sims yet, do sim
                 (v, end) = self.simulate(cur)
                 if v == 1:
-                    print(f"state was solution!\n")
                     return self.getroute(end)
                 else:
-                    print("state was not a solution\n")
                     self.backprop(cur, v)
             else:
                 # has been simulated, expand node
-                print("expanding this node\n")
                 self.expand(cur)
                 
                 if len(cur.nexts) != 0:
@@ -74,10 +68,8 @@ class MCTS():
                 (v, end) = self.simulate(cur)
                 if v == 1:
 
-                    print(f"state was solution!\n")
                     return self.getroute(end)
                 else:
-                    print("state was not a solution\n")
                     self.backprop(cur, v)
 
     def getroute(self, node: Node):
@@ -90,7 +82,6 @@ class MCTS():
         return route
 
     def simulate(self, node: Node):
-        print(f"SIMULATION\n starting from state[\n{node.s}\n]")
         node.getNexts()
         cur = node
         while(len(cur.nexts) != 0):
@@ -99,7 +90,6 @@ class MCTS():
             cur.clearNexts() # keep mem usage low
             cur = temp
             cur.getNexts()
-            print(f"Taking action {cur.prevAction} into state: \n{cur.s}\n")
 
         
         # leaf node, get value win or loss
