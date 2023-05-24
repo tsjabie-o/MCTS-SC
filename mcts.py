@@ -67,7 +67,6 @@ class MCTS():
                 # simulate that child
                 (v, end) = self.simulate(cur)
                 if v == 1:
-
                     return self.getroute(end)
                 else:
                     self.backprop(cur, v)

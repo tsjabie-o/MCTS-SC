@@ -5,91 +5,95 @@ from utils import Square
 from mcts import MCTS, Node
 
 class TestState(unittest.TestCase):
-    def alignSetUp(self):
-        self.p1 = Piece("P")
-        self.p2 = Piece("P")
-        self.p3 = Piece("P")
-        ps = {self.p1, self.p2, self.p3}
-        square = dict()
-        self.s = State(ps, square)
-    
     def test_alignVer(self):
-        self.alignSetUp()
+        p1 = Piece("P")
+        p2 = Piece("P")
+        p3 = Piece("P")
 
         # normal alignment
-        self.s.square = {
-            self.p1: Square(1,1),
-            self.p2: Square(1,2),
-            self.p3: Square(1,3)
+        square = {
+            p1: Square(1,1),
+            p2: Square(1,2),
+            p3: Square(1,3)
         }
-        self.assertTrue(self.s.alignVer(self.p1, self.p2))
-        self.assertTrue(self.s.alignVer(self.p2, self.p1))
+        s = State(square)
+
+        self.assertTrue(s.alignVer(p1, p2))
+        self.assertTrue(s.alignVer(p2, p1))
 
         # piece in between
-        self.assertFalse(self.s.alignVer(self.p1, self.p3))
+        self.assertFalse(s.alignVer(p1, p3))
 
         # cleanup
-        self.s.square.clear()
+        s.square.clear()
 
 
     def test_alignHor(self):
-        self.alignSetUp()
+        p1 = Piece("P")
+        p2 = Piece("P")
+        p3 = Piece("P")
 
         # normal alignment
-        self.s.square = {
-            self.p1: Square(1, 1),
-            self.p2: Square(2, 1),
-            self.p3: Square(3, 1)
+        square = {
+            p1: Square(1, 1),
+            p2: Square(2, 1),
+            p3: Square(3, 1)
         }
-        self.assertTrue(self.s.alignHor(self.p1, self.p2))
-        self.assertTrue(self.s.alignHor(self.p2, self.p1))
+        s = State(square)
+
+        self.assertTrue(s.alignHor(p1, p2))
+        self.assertTrue(s.alignHor(p2, p1))
 
         # piece in between
-        self.assertFalse(self.s.alignHor(self.p1, self.p3))
+        self.assertFalse(s.alignHor(p1, p3))
 
         # cleanup
-        self.s.square.clear()
+        s.square.clear()
 
     def test_alignDia(self):
-        self.alignSetUp()
+        p1 = Piece("P")
+        p2 = Piece("P")
+        p3 = Piece("P")
 
         # left-up to right-down
         # aligned
-        self.s.square = {
-            self.p1: Square(1,3),
-            self.p2: Square(2,2),
-            self.p3: Square(3,1)
+        square = {
+            p1: Square(1,3),
+            p2: Square(2,2),
+            p3: Square(3,1)
         }
-        self.assertTrue(self.s.alignDia(self.p1, self.p2))
-        self.assertTrue(self.s.alignDia(self.p2, self.p1))
+        s = State(square)
+
+        self.assertTrue(s.alignDia(p1, p2))
+        self.assertTrue(s.alignDia(p2, p1))
         # piece in between
-        self.assertFalse(self.s.alignDia(self.p1, self.p3))
+        self.assertFalse(s.alignDia(p1, p3))
 
         # left-down to right-up
-        self.s.square = {
-            self.p1: Square(1,1),
-            self.p2: Square(2,2),
-            self.p3: Square(3,3)
-        }
-        self.assertTrue(self.s.alignDia(self.p1, self.p2))
-        self.assertTrue(self.s.alignDia(self.p2, self.p1))
+        s.set_square({
+            p1: Square(1,1),
+            p2: Square(2,2),
+            p3: Square(3,3)
+        })
+        self.assertTrue(s.alignDia(p1, p2))
+        self.assertTrue(s.alignDia(p2, p1))
         # piece in between
-        self.assertFalse(self.s.alignDia(self.p1, self.p3))
+        self.assertFalse(s.alignDia(p1, p3))
 
         # one in dia-1, one in dia-2
-        self.s.square = {
-            self.p1: Square(1,3),
-            self.p2: Square(2,2),
-            self.p3: Square(3,3)
-        }
-        self.assertTrue(self.s.alignDia(self.p1, self.p2))
-        self.assertTrue(self.s.alignDia(self.p2, self.p1))
-        self.assertTrue(self.s.alignDia(self.p3, self.p2))
-        self.assertTrue(self.s.alignDia(self.p2, self.p3))
-        self.assertFalse(self.s.alignDia(self.p1, self.p3))
+        s.set_square({
+            p1: Square(1,3),
+            p2: Square(2,2),
+            p3: Square(3,3)
+        })
+        self.assertTrue(s.alignDia(p1, p2))
+        self.assertTrue(s.alignDia(p2, p1)) 
+        self.assertTrue(s.alignDia(p3, p2))
+        self.assertTrue(s.alignDia(p2, p3))
+        self.assertFalse(s.alignDia(p1, p3))
 
         # clean up
-        self.s.square.clear()
+        s.square.clear()
 
     def test_side(self):
         q = Piece("Q")
@@ -105,7 +109,7 @@ class TestState(unittest.TestCase):
             k: 0
         }
 
-        s = State({q, k}, square, caps=caps)
+        s = State(square, caps=caps)
 
         self.assertFalse(s.valCap(q, q))
         self.assertFalse(s.valCap(q, k))
@@ -126,7 +130,7 @@ class TestState(unittest.TestCase):
             p4: Square(2, 1),
             p5: Square(4, 3)
         }
-        s = State({q, p1, p2, p3, p4, p5}, square)
+        s = State(square)
 
         # regular capture
         self.assertTrue(s.valCap(q, p5))
@@ -164,7 +168,7 @@ class TestState(unittest.TestCase):
             p9: Square(2, 3),
             p10: Square(5, 5)
         }
-        s = State({n, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10}, square)
+        s = State(square)
 
         self.assertTrue(s.valCap(n, p1))
         self.assertTrue(s.valCap(n, p2))
@@ -192,7 +196,7 @@ class TestState(unittest.TestCase):
             p4: Square(2, 2)
         }
 
-        s = State({p, p1, p2, p3, p4}, square)
+        s = State(square)
 
         self.assertTrue(s.valCap(p, p1))
         self.assertTrue(s.valCap(p, p2))
@@ -208,7 +212,7 @@ class TestState(unittest.TestCase):
             p1: Square(3, 4),
             p2: Square(4, 5)
         }
-        s = State({k, p1, p2}, square)
+        s = State(square)
 
         self.assertTrue(s.valCap(k, p1))
         self.assertFalse(s.valCap(k, p2))
@@ -222,7 +226,7 @@ class TestState(unittest.TestCase):
             p2: Square(4, 4)
         }
 
-        s0 = State({p1, p2}, square)
+        s0 = State(square)
         s2 = s0.nextState(p1, p2)
 
         self.assertNotIn(p2, s2.ps)
@@ -241,7 +245,7 @@ class TestNode(unittest.TestCase):
             p: Square(3, 4)
         }
 
-        s0 = State({k, p}, square)
+        s0 = State(square)
 
         n = Node(s0, None, None)
         n.getNexts()
@@ -254,7 +258,7 @@ class TestNode(unittest.TestCase):
             k: Square(3, 3)
         }
 
-        s0 = State({k}, square)
+        s0 = State(square)
 
         n = Node(s0, None)
         n.getNexts()
@@ -263,14 +267,14 @@ class TestNode(unittest.TestCase):
     def test_getValue(self):
         k = Piece("K")
         square = {k: Square(3,3)}
-        s = State({k}, square)
+        s = State(square)
 
         n = Node(s, None)
         self.assertEqual(n.getValue(), 1)
 
         p = Piece("P")
         square = {p: Square(3,3)}
-        s = State({p}, square)
+        s = State(square)
 
         n = Node(s, None)
         self.assertEqual(n.getValue(), 0)
@@ -284,7 +288,7 @@ class TestNode(unittest.TestCase):
             p: Square(3, 4)
         }
 
-        s0 = State({k, p}, square)
+        s0 = State(square)
 
         n = Node(s0, None)
         n.getNexts()
@@ -308,7 +312,7 @@ class TestPuzzles(unittest.TestCase):
             n2: Square(2, 4)
         }
 
-        s0 = State({k, n1, n2}, square)
+        s0 = State(square)
         self.mcts.setup(s0)
         res = self.mcts.run()
 
@@ -324,7 +328,7 @@ class TestPuzzles(unittest.TestCase):
             p: Square(3, 4)
         }
 
-        s0 = State({k, p}, square)
+        s0 = State(square)
 
         self.mcts.setup(s0)
         res = self.mcts.run()
@@ -337,7 +341,7 @@ class TestPuzzles(unittest.TestCase):
             k: Square(3, 3)
         }
 
-        s0 = State({k}, square)
+        s0 = State(square)
 
         self.mcts.setup(s0)
         res = self.mcts.run()
@@ -361,7 +365,7 @@ class TestPuzzles(unittest.TestCase):
             p: Square(2, 2)
         }
 
-        s0 = State({k, n1, n2, r1, r2, p}, square)
+        s0 = State(square)
 
         self.mcts.setup(s0)
         res = self.mcts.run()
@@ -393,7 +397,7 @@ class TestPuzzles(unittest.TestCase):
             n1: Square(6,5)
         }
 
-        s0 = State({k, r1, r2, r3, r4, r5, r6, r7, b1, q1, n1}, square)
+        s0 = State(square)
 
         self.mcts.setup(s0)
         res = self.mcts.run()

@@ -8,3 +8,7 @@ class Square():
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+    
+    def __hash__(self) -> int:
+        # prime factorisation so unique
+        return hash(2**(self.x) * 3**(self.y))

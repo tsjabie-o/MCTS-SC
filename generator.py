@@ -13,6 +13,7 @@ class Generator():
         # Initializing the state info
         square = dict()
         ps = set()
+        qs = set()
         caps = dict()
 
         # Adding the king
@@ -41,7 +42,7 @@ class Generator():
     def expand(self, p, s):
         pass
 
-    def getExpansions(self, p: Piece, square, ps):
+    def getExpansions(self, p: Piece, square, qs):
         sqrs = list()
         # piece-type specific moves
         x = square[p].x
@@ -74,5 +75,5 @@ class Generator():
         sqrs = [s for s in sqrs if 0 <= s.x <= 8 and 0 <= s.y <= 8]
 
         # remove occupied sqaures
-        sqrs = [s for s in sqrs if square[p] != s for p in ps]
+        sqrs = [s for s in sqrs if s not in qs]
         return sqrs
