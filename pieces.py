@@ -1,5 +1,26 @@
 class Piece():
+    """A class wich represents a piece of chess
+    
+    Attributes:
+        type: the numerical representation of the type of piece (King, Queen, etc.)
+        rank: the rank of the piece, dependent on its type and used in the Rank heuristic by Verlaan
+    """
+
+    toType = {
+            1: "Queen",
+            2: "Rook",
+            3: "Bischop",
+            4: "Knight",
+            5: "Pawn",
+            6: "King"
+    }
+
     def __init__(self, t):
+        """Initialises a Piece object
+        
+        Args:
+            t: the numerical representation of the type of piece
+        """
         match t:
             case "Q":
                 # Queen
@@ -25,14 +46,11 @@ class Piece():
                 # King
                 self.type = 6
                 self.rank = 99
-        self.toType = {
-            1: "Queen",
-            2: "Rook",
-            3: "Bischop",
-            4: "Knight",
-            5: "Pawn",
-            6: "King"
-        }
 
     def __repr__(self) -> str:
-        return f"{self.type} ({self.toType[self.type]})"
+        """The string representation of a Piece object
+        
+        Returns:
+            A string containing information about the type and rank of the piece
+        """
+        return f"{self.type} ({Piece.toType[self.type]})"

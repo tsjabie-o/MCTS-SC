@@ -317,7 +317,7 @@ class TestPuzzles(unittest.TestCase):
         res = self.mcts.run()
 
         self.assertTrue(len(res) == 3)
-        self.assertTrue(res[2].isGoal())
+        self.assertTrue(res[2].s.isGoal())
 
     def test_oneStepWin(self):
         k = Piece("K")
@@ -346,7 +346,7 @@ class TestPuzzles(unittest.TestCase):
         self.mcts.setup(s0)
         res = self.mcts.run()
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0], s0)
+        self.assertEqual(res[0].s, s0)
 
     def test_hardLvl5(self):
         k = Piece("K")

@@ -109,15 +109,22 @@ class State():
         """Checks whether this state is a goal state
 
         Uses the rules of Solo Chess to determine whether this state is a winning (goal) state.
-        The amount of pieces has to equal one and the type of this piece must be a King.
+        The state has to be terminl and the type of the only piece must be a King.
 
         Returns:
             A bool
         """
-        if len(self.ps) == 1:
-            for p in self.ps:
-                return p.type == 6
+        if self.isTerminal():
+            return all([p.type == 6 for p in self.ps])
         return False
+    
+    def isTerminal(self):
+        """Checks whether state is a terminal state
+        
+        Returns:
+            A bool indicating whether this is a terminal state, i.e. no more actions can be taken
+        """
+        return len(self.ps) == 1 or len(self.getActions()) == 0
     
     def alignVer(self, p1: Piece, p2: Piece) -> bool:
         """Checks whether two pieces are vertically aligned in this state
