@@ -1,8 +1,9 @@
 import unittest
 from pieces import Piece
 from state import State
-from utils import Square
+from utils import Square, Utils
 from mcts import MCTS, Node
+from generator import Generator
 
 class TestState(unittest.TestCase):
     def test_alignVer(self):
@@ -18,11 +19,11 @@ class TestState(unittest.TestCase):
         }
         s = State(square)
 
-        self.assertTrue(s.alignVer(p1, p2))
-        self.assertTrue(s.alignVer(p2, p1))
+        self.assertTrue(Utils.alignVer(s.square[p1], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignVer(s.square[p2], s.square[p1], s.qs))
 
         # piece in between
-        self.assertFalse(s.alignVer(p1, p3))
+        self.assertFalse(Utils.alignVer(s.square[p1], s.square[p3], s.qs))
 
         # cleanup
         s.square.clear()
@@ -41,11 +42,11 @@ class TestState(unittest.TestCase):
         }
         s = State(square)
 
-        self.assertTrue(s.alignHor(p1, p2))
-        self.assertTrue(s.alignHor(p2, p1))
+        self.assertTrue(Utils.alignHor(s.square[p1], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignHor(s.square[p2], s.square[p1], s.qs))
 
         # piece in between
-        self.assertFalse(s.alignHor(p1, p3))
+        self.assertFalse(Utils.alignHor(s.square[p1], s.square[p3], s.qs))
 
         # cleanup
         s.square.clear()
@@ -64,10 +65,10 @@ class TestState(unittest.TestCase):
         }
         s = State(square)
 
-        self.assertTrue(s.alignDia(p1, p2))
-        self.assertTrue(s.alignDia(p2, p1))
+        self.assertTrue(Utils.alignDia(s.square[p1], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignDia(s.square[p2], s.square[p1], s.qs))
         # piece in between
-        self.assertFalse(s.alignDia(p1, p3))
+        self.assertFalse(Utils.alignDia(s.square[p1], s.square[p3], s.qs))
 
         # left-down to right-up
         s.set_square({
@@ -75,10 +76,10 @@ class TestState(unittest.TestCase):
             p2: Square(2,2),
             p3: Square(3,3)
         })
-        self.assertTrue(s.alignDia(p1, p2))
-        self.assertTrue(s.alignDia(p2, p1))
+        self.assertTrue(Utils.alignDia(s.square[p1], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignDia(s.square[p2], s.square[p1], s.qs))
         # piece in between
-        self.assertFalse(s.alignDia(p1, p3))
+        self.assertFalse(Utils.alignDia(s.square[p1], s.square[p3], s.qs))
 
         # one in dia-1, one in dia-2
         s.set_square({
@@ -86,11 +87,11 @@ class TestState(unittest.TestCase):
             p2: Square(2,2),
             p3: Square(3,3)
         })
-        self.assertTrue(s.alignDia(p1, p2))
-        self.assertTrue(s.alignDia(p2, p1)) 
-        self.assertTrue(s.alignDia(p3, p2))
-        self.assertTrue(s.alignDia(p2, p3))
-        self.assertFalse(s.alignDia(p1, p3))
+        self.assertTrue(Utils.alignDia(s.square[p1], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignDia(s.square[p2], s.square[p1], s.qs)) 
+        self.assertTrue(Utils.alignDia(s.square[p3], s.square[p2], s.qs))
+        self.assertTrue(Utils.alignDia(s.square[p2], s.square[p3], s.qs))
+        self.assertFalse(Utils.alignDia(s.square[p1], s.square[p3], s.qs))
 
         # clean up
         s.square.clear()
@@ -401,6 +402,75 @@ class TestPuzzles(unittest.TestCase):
 
         self.mcts.setup(s0)
         res = self.mcts.run()
+
+class TestGenerator(unittest.TestCase):
+    def test_expand(self):
+        g = Generator()
+        p = Piece("Q")
+        s = Square(1,1)
+        ps = {p}
+        qs = {Square(2,2)}
+        caps = {p: 2}
+        square = {p: Square(2,2)}
+        
+        g.expand(p, s, ps, qs, caps, square)
+        
+        # test new square is correct
+        self.assertTrue(square[p] == s)
+
+        # test caps is 1 less
+        self.assertTrue(caps[p] == 1)
+
+        # test entries for new piece
+        self.assertTrue(len(square) == 2)
+        self.assertTrue(len(caps) == 2)
+        self.assertTrue(len(ps) == 2)
+        self.assertTrue(len(qs) == 2)
+    
+    def test_getExpansions(self):
+        g = Generator()
+        
+        # check inside board bounds
+        q = Piece("Q")
+        p = Piece("P")
+        square = {q: Square(1,1), p: Square(2,2)}
+        qs = {Square(1,1), Square(2,2)}
+
+        sqrs = g.getExpansions(q, square, qs)
+
+        self.assertTrue(Square(0, 1) in sqrs)
+        self.assertTrue(Square(-1, 1) not in sqrs)
+        self.assertTrue(Square(0, 2) in sqrs)
+        self.assertTrue(Square(-1, 3) not in sqrs)
+
+        # check not occupied or obstructed
+        self.assertTrue(Square(2, 2) not in sqrs)
+        self.assertTrue(Square(3, 3) not in sqrs)
+
+        # soft check for complex pieces
+        # Knight
+        n = Piece("N")
+        square = {n: Square(4,4)}
+        qs = {Square(4,4)}
+
+        sqrs = g.getExpansions(n, square, qs)
+
+        self.assertTrue(len(sqrs) == 8)
+
+        # King
+        k = Piece("K")
+        square = {k: Square(4,4)}
+
+        sqrs = g.getExpansions(k, square, qs)
+
+        self.assertTrue(len(sqrs) == 8)
+    
+    def test_fullGeneration(self):
+        g = Generator()
+        s0 = g.getPuzzle(4)
+        
+        self.assertTrue(len(s0.ps) == 4)
+
 
 
 if __name__ == "__main__":
