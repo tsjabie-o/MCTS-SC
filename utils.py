@@ -1,3 +1,5 @@
+import math
+
 class Square():
     def __init__(self, x, y):
         self.x = x
@@ -19,6 +21,32 @@ class Utils():
     These methods are mostly about implementing rules of chess and movement patterns for pieces.
     That requires long and boring code, which is why it's hidden away in this class.
     """
+    @classmethod
+    def visualizeState(cls, s):
+        """Visualizes the game board in a simple grid on the terminal
+        
+        Agrs:
+            s: the state to visualize
+        """
+        board = [["-" for i in range(8)] for i in range(8)]
+        for p in s.square:
+            q = s.square[p]
+            board[q.y][q.x] = p
+
+        # matter of perspective
+        board.reverse()
+        for row in board:
+            for square in row:
+                print(square, end=' ')
+            print()
+        
+    
+    @classmethod
+    def distance(cls, q1, q2):
+        """Returns euclidiean distance between two squares
+        """
+        return math.sqrt((q1.x - q2.x)**2 + (q1.y - q2.y)**2)
+
     @classmethod
     def alignVer(cls, q1, q2, qs):
         """Checks whether two squares are vertically aligned
@@ -200,7 +228,7 @@ class Utils():
                 sqrs = [Square(q.x + i, q.y + j) for i in [-1,0,1] for j in [-1,0,1] if not i == 0 == j]
 
         # remove squares outside board
-        sqrs = [q2 for q2 in sqrs if 0 <= q2.x <= 8 and 0 <= q2.y <= 8]
+        sqrs = [q2 for q2 in sqrs if 0 <= q2.x <= 7 and 0 <= q2.y <= 7]
 
         # remove occupied squares
         sqrs = [q2 for q2 in sqrs if q2 not in qs]
