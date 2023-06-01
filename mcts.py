@@ -79,7 +79,9 @@ class MCTS():
             s0: the starting state, should be State object
         """
         self.root = Node(s0, None, None)
+        self.ns.clear()
         self.ns[self.root] = 0
+        self.vals.clear()
         self.vals[self.root] = 0
 
 

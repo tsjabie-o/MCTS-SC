@@ -1,43 +1,38 @@
 from mcts import MCTS
 from generator import Generator
-from utils import Utils, Square
-from pieces import Piece
-from state import State
+from utils import Utils
 import time
 
 if __name__ == "__main__":
-    mcts = MCTS()
     gen = Generator()
+    puzzles = [gen.getPuzzle(10) for i in range(1000)]
+    ts = []
+    for i, p in enumerate(puzzles):
+        print(f"puzzle {i}")
+        tsh = []
+        tsr = []
+        mctsH = MCTS(h="R")
+        mctsH.setup(p)
+        mctsR = MCTS()
+        mctsR.setup(p)
 
-    # times = []
+        for i in range(50):
+            start = time.time()
+            mctsH.run()
+            stop = time.time()
+            e = stop - start
+            tsh.append(e)
 
-    # s0 = gen.getPuzzle(5)
-
-    # s0 = State({
-    #     Piece("K"): Square(4, 7),
-    #     Piece("Q"): Square(5,7),
-    #     Piece("Q"): Square(5, 6),
-    #     Piece("N"): Square(6,6),
-    #     Piece("P"): Square(7, 5)
-    # })
-
-    # Utils.visualizeState(s0)
-
-
-    # mcts.setup(s0)
-    # mcts.run()
-
-    # print("solved")
-
-    for i in range(1000):
-        s0 = gen.getPuzzle(10)
-        mcts.setup(s0)
+            start = time.time()
+            mctsR.run()
+            stop = time.time()
+            e = stop - start
+            tsr.append(e)
         
-        # start = time.time()
-        mcts.run()
-        # stopped = time.time()
-        
-        # times.append(stopped - start)
-        print(f"solved {i}")
+        ts.append((sum(tsh)/len(tsh))/(sum(tsr)/len(tsr)))
+    
+    print(sum(ts)/len(ts))
+    # about 0.12 on last run!
 
-    # print(f"avg time to solve {sum(times)/len(times)} seconds")
+
+        

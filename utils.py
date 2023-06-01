@@ -1,4 +1,4 @@
-import math
+from math import sqrt
 
 class Square():
     def __init__(self, x, y):
@@ -45,7 +45,7 @@ class Utils():
     def distance(cls, q1, q2):
         """Returns euclidiean distance between two squares
         """
-        return math.sqrt((q1.x - q2.x)**2 + (q1.y - q2.y)**2)
+        return sqrt((q1.x - q2.x)**2 + (q1.y - q2.y)**2)
 
     @classmethod
     def alignVer(cls, q1, q2, qs):
