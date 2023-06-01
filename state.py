@@ -13,7 +13,7 @@ class State():
         caps: a dictionary which maps a piece to the amount of captures it has left
     """
 
-    def __init__(self, square: dict, caps = None):
+    def __init__(self, square: dict, caps = None, center = None):
         """Initialises a State object
 
         Args:
@@ -30,6 +30,8 @@ class State():
             self.caps = caps
         else:
             self.caps = {p: 2 for p in self.ps}
+        
+        self.center = center
 
     def set_square(self, square):
         """Changes self.square and updates other attributes
@@ -104,6 +106,7 @@ class State():
         caps2.pop(p2)
 
         s2 = State(square2, caps2)
+        s2.center = self.center
         return s2
     
     def isGoal(self) -> bool:
@@ -146,6 +149,26 @@ class State():
             return False
         
         return Utils.canReach(p1, self.square[p1], self.square[p2], self.qs)
+    
+    def heuristic(self, h, p1, p2):
+        """Implementation of the Heuristics
+        
+        Rank: Favours low-ranked pieces capturing low-ranked pieces.
+        Center: Favours pieces moving towards the center and pieces capturing far away pieces.
+
+        Args:
+            p1: the piece doing the capturing
+            p2: the piece being captured
+        
+        Returns:
+            heuristic value of the capture
+        """
+        match h:
+            case "R":
+                return 1/(p1.rank + self.caps[p2] * p2.rank)
+            case "C":
+                return Utils.distance(self.square[p1], self.square[p2]) + Utils.distance(self.square[p1], self.center)
+
     
     def __repr__(self) -> str:
         """The representation of an object of class State

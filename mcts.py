@@ -58,17 +58,19 @@ class MCTS():
     The class contains the logic for traversing the tree and simulating rollouts. The tree structure is
     implicitly embedded in the Node objects
     """
-    def __init__(self, c = 2):
+    def __init__(self, c = 2, h = None):
         """Initialises an instance of MCTS
         
         Args:
             c: the exploration coefficient
             vals: a dictionary keeping track of values of nodes/states
             ns: a dictionary keeping track of the number of times a node has been visited
+            h: whether to implement heuristics
         """
         self.c = c
         self.vals = dict()
         self.ns = dict()
+        self.h = h
 
     def setup(self, s0):
         """Sets up the MCTS object with a starting state
@@ -155,7 +157,14 @@ class MCTS():
 
         # Keep choosing a new action as long as current state is not terminal
         while(not cur.s.isTerminal()):
-            cur = rd.choice(cur.nexts) # for now, random choice of action
+            if self.h is not None:
+                # use heuristics
+                hvals = {next: cur.s.heuristic(self.h, next.prevAction[0], next.prevAction[1]) for next in cur.nexts}
+                cur = max(hvals, key=hvals.get)
+            else:
+                # uniform random
+                cur = rd.choice(cur.nexts)
+            
             cur.getNexts()
         
         # leaf node, get value win or loss

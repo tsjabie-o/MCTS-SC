@@ -22,12 +22,17 @@ class Generator():
 
         # Adding the king
         k = Piece("K")
-        s = Square(rd.choice([i for i in range(9)]), rd.choice([i for i in range(9)]))
+        s = Square(rd.choice([i for i in range(8)]), rd.choice([i for i in range(8)]))
 
         ps.add(k)
         qs.add(s)
         caps[k] = 2
         square[k] = s
+        
+        # debug
+        # Utils.visualizeState(State(square))
+        # print()
+
 
         for i in range(n-1):
             # starting with pieces with captures left
@@ -47,7 +52,11 @@ class Generator():
             # perform expansion with p, s
             self.expand(p, s, ps, qs, caps, square)
 
-        s0 = State(square)
+            # debug
+            # Utils.visualizeState(State(square))
+            # print()
+
+        s0 = State(square, center = square[k])
         return s0
 
     def expand(self, p, s, ps, qs, caps, square):

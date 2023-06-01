@@ -7,12 +7,12 @@ class Piece():
     """
 
     toType = {
-            1: "Queen",
-            2: "Rook",
-            3: "Bischop",
-            4: "Knight",
-            5: "Pawn",
-            6: "King"
+            1: "Q",
+            2: "R",
+            3: "B",
+            4: "N",
+            5: "P",
+            6: "K"
     }
 
     def __init__(self, t):
@@ -53,4 +53,4 @@ class Piece():
         Returns:
             A string containing information about the type and rank of the piece
         """
-        return f"{self.type} ({Piece.toType[self.type]})"
+        return f"{Piece.toType[self.type]}"

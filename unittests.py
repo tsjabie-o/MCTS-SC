@@ -28,7 +28,6 @@ class TestState(unittest.TestCase):
         # cleanup
         s.square.clear()
 
-
     def test_alignHor(self):
         p1 = Piece("P")
         p2 = Piece("P")
@@ -235,6 +234,72 @@ class TestState(unittest.TestCase):
         self.assertNotIn(p2, s2.caps)
         self.assertEqual((s2.square[p1].x, s2.square[p1].y), (4,4))
         self.assertEqual(s2.caps[p1], 1)
+
+    def test_heuristic(self):
+        # Rank heuristic
+
+        # low captured over high captured
+        # p1 takes p2 should have higher value than not p1 takes n
+        p1 = Piece("P")
+        p2 = Piece("P")
+        n = Piece("N")
+    
+        square = {
+            p1: Square(1, 0),
+            p2: Square(2, 1),
+            n: Square(0, 1)
+        }
+        s = State(square)
+
+        self.assertTrue(s.heuristic("R", p1, p2) > s.heuristic("R", p1, n))
+
+        # low capturer over high capturer
+        # p1 takes p2 should have higher value than b takes p1
+        p1 = Piece("P")
+        p2 = Piece("P")
+        b = Piece("B")
+
+        square = {
+            p1: Square(1, 0),
+            p2: Square(2, 1),
+            b: Square(0, 1)
+        }
+
+        s = State(square)
+
+        self.assertTrue(s.heuristic("R", p1, p2) > s.heuristic("R", b, p1))
+
+        # Center heuristic
+
+        # moves over longer distance preferred
+        # b takes p1 should have higher value than b takes p2
+        p1 = Piece("P")
+        p2 = Piece("P")
+        b = Piece("B")
+
+        square = {
+            b: Square(3,3),
+            p1: Square(0,0),
+            p2: Square(4,4)
+        }
+
+        s = State(square, center = Square(3,3))
+
+        self.assertTrue(s.heuristic("C", b, p1) > s.heuristic("C", b, p2))
+
+        # moves further from the center preferred
+        # b2 takes b1 should have higher value than b1 takes b2
+        b1 = Piece("B")
+        b2 = Piece("B")
+
+        square = {
+            b1: Square(3,3),
+            b2: Square(6,6)
+        }
+
+        s = State(square, center = Square(3, 3))
+
+        self.assertTrue(s.heuristic("C", b2, b1) > s.heuristic("C", b1, b2))
 
 class TestNode(unittest.TestCase):
     def test_getNexts(self):

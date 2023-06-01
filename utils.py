@@ -222,7 +222,7 @@ class Utils():
                 sqrs = [Square(q.x + i, q.y + j) for i in steps for j in steps if abs(i) != abs(j)]
             case 5:
                 # Pawn
-                sqrs = [Square(q.x + i, q.y + 1) for i in [-1,1]]
+                sqrs = [Square(q.x + i, q.y - 1) for i in [-1,1]]
             case 6:
                 # King
                 sqrs = [Square(q.x + i, q.y + j) for i in [-1,0,1] for j in [-1,0,1] if not i == 0 == j]
