@@ -6,7 +6,7 @@ import random as rd
 class Generator():
     """Generates starting states based on certain preconditions
     """
-    def getPuzzle(self, n, s=None):
+    def getPuzzle(self, n):
         """Interface for other parts of code
         
         Uses internal methods to generate a puzzle starting state. Basically checks if generation has
@@ -18,8 +18,6 @@ class Generator():
         Returns:
             A starting state corresponding to a level n+1 puzzle of Solo Chess
         """
-        if s is not None:
-            rd.seed(s)
         while True:
             s0 = self.generate(n)
             if s0 is not None:

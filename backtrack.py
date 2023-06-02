@@ -5,7 +5,7 @@ class Backtrack():
     
     This should be roughly the same implementation as that of Verlaan
     """
-    def setup(self, s0, h=None):
+    def __init__(self, s0, h=None):
         self.s0 = s0
         self.h = h
         self.root = Node(self.s0, None, None)

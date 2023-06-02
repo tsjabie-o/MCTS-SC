@@ -364,9 +364,6 @@ class TestNode(unittest.TestCase):
         self.assertIsNotNone(n2)
 
 class TestPuzzles(unittest.TestCase):
-    def setUp(self):
-        self.mcts = MCTS()
-
     def test_WrongMovePoss(self):
         k = Piece("K")
         n1 = Piece("N")
@@ -379,11 +376,8 @@ class TestPuzzles(unittest.TestCase):
         }
 
         s0 = State(square)
-        self.mcts.setup(s0)
-        res = self.mcts.run()
-
-        self.assertTrue(len(res) == 3)
-        self.assertTrue(res[2].s.isGoal())
+        mcts = MCTS(s0)
+        mcts.run()
 
     def test_oneStepWin(self):
         k = Piece("K")
@@ -396,9 +390,8 @@ class TestPuzzles(unittest.TestCase):
 
         s0 = State(square)
 
-        self.mcts.setup(s0)
-        res = self.mcts.run()
-        self.assertEqual(len(res), 2)
+        mcts = MCTS(s0)
+        mcts.run()
     
     def test_instantWin(self):
         k = Piece("K")
@@ -409,10 +402,8 @@ class TestPuzzles(unittest.TestCase):
 
         s0 = State(square)
 
-        self.mcts.setup(s0)
-        res = self.mcts.run()
-        self.assertEqual(len(res), 1)
-        self.assertEqual(res[0].s, s0)
+        mcts = MCTS(s0)
+        mcts.run()
 
     def test_hardLvl5(self):
         k = Piece("K")
@@ -433,8 +424,8 @@ class TestPuzzles(unittest.TestCase):
 
         s0 = State(square)
 
-        self.mcts.setup(s0)
-        res = self.mcts.run()
+        mcts = MCTS(s0)
+        mcts.run()
 
     def test_lvl10(self):
         k = Piece("K")
@@ -465,8 +456,8 @@ class TestPuzzles(unittest.TestCase):
 
         s0 = State(square)
 
-        self.mcts.setup(s0)
-        res = self.mcts.run()
+        mcts = MCTS(s0)
+        mcts.run()
 
 class TestGenerator(unittest.TestCase):
     def test_expand(self):

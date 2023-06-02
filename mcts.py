@@ -27,6 +27,9 @@ class Node():
         self.nexts = []
         self.parent = parent
         self.prevAction = prevAction
+        self.wins = 0
+        self.visits = 0
+        self.leaf = True
 
     def getNexts(self):
         """Method to fill the self.nexts list
@@ -35,6 +38,8 @@ class Node():
         Then nodes are created corresponding to those states, complete with information about parent and action taken.
         These nodes are added to the self.nexts list
         """
+        if len(self.nexts) > 0:
+            return
         new_states = self.s.transition()
         for a in new_states:
             new_node = Node(new_states[a], self, a)
@@ -51,6 +56,9 @@ class Node():
         """Retrieves the value of the corresponding state
         """
         return 1 if self.s.isGoal() else 0
+    
+    def isTerminal(self):
+        return self.s.isTerminal()
 
 class MCTS():
     """A class which represents a MCTS algorithm
@@ -58,7 +66,7 @@ class MCTS():
     The class contains the logic for traversing the tree and simulating rollouts. The tree structure is
     implicitly embedded in the Node objects
     """
-    def __init__(self, c = 2):
+    def __init__(self, s0, h = None, c = 2):
         """Initialises an instance of MCTS
         
         Args:
@@ -68,23 +76,8 @@ class MCTS():
             h: whether to implement heuristics
         """
         self.c = c
-        self.vals = dict()
-        self.ns = dict()
-
-    def setup(self, s0, h = None):
-        """Sets up the MCTS object with a starting state
-        
-        Args:
-            s0: the starting state, should be State object
-        """
         self.root = Node(s0, None, None)
-        self.ns.clear()
-        self.ns[self.root] = 0
-        self.vals.clear()
-        self.vals[self.root] = 0
         self.h = h
-
-
 
     def run(self):
         """Starts the mcts algorithm on the initial state
@@ -93,34 +86,30 @@ class MCTS():
         When a leaf node is found, this method calls a function to expand and simulate a node.
         After that, it calls a method for performing backpropogation.
         If a solution is found, this method calls a method to retrieve the route (sequence of actions) from the tree and returns, stopping the loop
-
-        Returns:
-            A list of nodes, representing the route from the initial state to the goal state.
-            Since the nodes contain information about the action taken, this is also a sequence of actions to solve the puzzle.
         """
         while True:
             cur = self.root
-            while len(cur.nexts) != 0:
+            while not cur.leaf:
                 # select child with highest uct metric
                 ucts = {node: self.uct(node) for node in cur.nexts}
                 child = max(ucts, key=ucts.get)
                 cur = child
 
-            if self.ns[cur] != 0:
+            if cur.visits > 0 and not cur.isTerminal():
                 # has been simulated, expand node
                 self.expand(cur)
+                cur.leaf = False
                 
-                if len(cur.nexts) != 0:
-                    # not a losing state
-                    # select child with highest uct metric
-                    ucts = {node: self.uct(node) for node in cur.nexts}
-                    child = max(ucts, key=ucts.get)
-                    cur = child
+                # not a losing/terminal state
+                # select child with highest uct metric
+                ucts = {node: self.uct(node) for node in cur.nexts}
+                child = max(ucts, key=ucts.get)
+                cur = child
                 
             # simulate that child
-            (v, end) = self.simulate(cur)
+            v = self.simulate(cur)
             if v == 1:
-                return self.getroute(end)
+                return
             else:
                 self.backprop(cur, v)
 
@@ -153,29 +142,29 @@ class MCTS():
         Args:
             node: the node from which to perform simulation.
         Returns:
-            A tuple (v, cur) where v is the value of the terminal state cur.
+            the value of the terminal state.
         """
         node.getNexts()
         cur = node
 
         # Keep choosing a new action as long as current state is not terminal
-        while(not cur.s.isTerminal()):
+        while(not cur.isTerminal()):
             if self.h is not None:
                 # use heuristics
                 hvals = {next: cur.s.heuristic(self.h, next.prevAction[0], next.prevAction[1]) for next in cur.nexts}
-                cur = max(hvals, key=hvals.get)
+                next = max(hvals, key=hvals.get)
             else:
                 # uniform random
-                cur = rd.choice(cur.nexts)
+                next = rd.choice(cur.nexts)
             
+            cur.clearNexts()
+            cur = next
             cur.getNexts()
         
         # leaf node, get value win or loss
         v = cur.getValue()
-        
-        # prune simulated tree
-        node.clearNexts()
-        return (v, cur)
+        cur.clearNexts()
+        return v
 
     def backprop(self, node: Node, v):
         """Performs the backpropagation phase of mcts
@@ -187,12 +176,12 @@ class MCTS():
             v: the value of node
         """
         cur = node
-        self.vals[cur] += v
-        self.ns[cur] += 1
+        cur.wins += v
+        cur.visits += 1
         while cur.parent is not None:
             cur = cur.parent
-            self.vals[cur] += v
-            self.ns[cur] += 1
+            cur.wins += v
+            cur.visits += 1
 
     def expand(self, node: Node):
         """Performs the expansion phase of mcts
@@ -205,10 +194,6 @@ class MCTS():
             """
         node.getNexts()
 
-        for n in node.nexts:
-            self.vals[n] = 0
-            self.ns[n] = 0
-
     def uct(self, node):
         """Performs the UCT calculation
         
@@ -218,10 +203,10 @@ class MCTS():
         Returns:
             The UCT value of node, according to the original UCT formula as designed by Kocsis et al
             """
-        if self.ns[node] == 0:
+        if node.visits == 0:
             return math.inf
         else:
-            exploitation = self.vals[node] / self.ns[node]
-            exploration = sqrt(log(self.ns[node.parent])/self.ns[node])
+            exploitation = node.wins / node.visits
+            exploration = sqrt(log(node.parent.visits)/node.visits)
             return exploitation + self.c * exploration
     
