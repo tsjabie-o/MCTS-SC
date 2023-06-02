@@ -58,7 +58,7 @@ class MCTS():
     The class contains the logic for traversing the tree and simulating rollouts. The tree structure is
     implicitly embedded in the Node objects
     """
-    def __init__(self, c = 2, h = None):
+    def __init__(self, c = 2):
         """Initialises an instance of MCTS
         
         Args:
@@ -70,9 +70,8 @@ class MCTS():
         self.c = c
         self.vals = dict()
         self.ns = dict()
-        self.h = h
 
-    def setup(self, s0):
+    def setup(self, s0, h = None):
         """Sets up the MCTS object with a starting state
         
         Args:
@@ -83,6 +82,8 @@ class MCTS():
         self.ns[self.root] = 0
         self.vals.clear()
         self.vals[self.root] = 0
+        self.h = h
+
 
 
     def run(self):

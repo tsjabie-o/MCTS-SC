@@ -1,38 +1,38 @@
 from mcts import MCTS
 from generator import Generator
 from utils import Utils
+from backtrack import Backtrack
 import time
+import random
 
 if __name__ == "__main__":
     gen = Generator()
-    puzzles = [gen.getPuzzle(10) for i in range(1000)]
-    ts = []
-    for i, p in enumerate(puzzles):
-        print(f"puzzle {i}")
-        tsh = []
-        tsr = []
-        mctsH = MCTS(h="R")
-        mctsH.setup(p)
-        mctsR = MCTS()
-        mctsR.setup(p)
+    ps = [gen.getPuzzle(13) for i in range(15)]
+    times = []
 
-        for i in range(50):
-            start = time.time()
-            mctsH.run()
-            stop = time.time()
-            e = stop - start
-            tsh.append(e)
+    for i, p in enumerate(ps):
+        print(i)
 
-            start = time.time()
-            mctsR.run()
-            stop = time.time()
-            e = stop - start
-            tsr.append(e)
+        mcts = MCTS()
         
-        ts.append((sum(tsh)/len(tsh))/(sum(tsr)/len(tsr)))
+
+        mcts.setup(p)
+        # s = time.time()
+        mcts.run()
+        # st = time.time()
+        # e1 = st - s
+
+        # bt = Backtrack()
+        # bt.setup(p)
+        # s = time.time()
+        # bt.run()
+        # st = time.time()
+        # e2 = st - s
+
     
-    print(sum(ts)/len(ts))
-    # about 0.12 on last run!
+    # print(sum(times)/len(times))
+
+
 
 
         
