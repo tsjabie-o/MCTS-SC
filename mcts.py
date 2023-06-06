@@ -78,6 +78,7 @@ class MCTS():
         self.c = c
         self.root = Node(s0, None, None)
         self.h = h
+        self.seen = set()
 
     def run(self):
         """Starts the mcts algorithm on the initial state
@@ -144,7 +145,7 @@ class MCTS():
         Returns:
             the value of the terminal state.
         """
-        node.getNexts()
+        self.expand(node)
         cur = node
 
         # Keep choosing a new action as long as current state is not terminal
@@ -157,19 +158,19 @@ class MCTS():
                 # uniform random
                 next = rd.choice(cur.nexts)
             
-            cur.clearNexts()
+            self.prune(cur)
             cur = next
-            cur.getNexts()
+            self.expand(cur)
         
-        # leaf node, get value win or loss
-        v = cur.getValue()
-        cur.clearNexts()
+        # leaf node, get value win ratio or just 1
+        v = (len(self.root.s.ps) - len(cur.s.ps))/len(self.root.s.ps) if not cur.s.isGoal() else 1
+        self.prune(cur)
         return v
 
     def backprop(self, node: Node, v):
         """Performs the backpropagation phase of mcts
         
-        Moves up through the tree from the supplied node to the root, updating the self.vals and self.ns dictionaries.
+        Moves up through the tree from the supplied node to the root, updating the wins and visits stats.
         
         Args:
             node: the node from which to start backpropagating
@@ -187,12 +188,21 @@ class MCTS():
         """Performs the expansion phase of mcts
         
         Expands a node by calling the getNexts() method of the Node object.
-        Creates entries for the new nodes in the self.vs and self.ns dictionaries
         
         Args:
             node: the node to expand
             """
         node.getNexts()
+
+        # manage seen states
+        node.nexts = [n for n in node.nexts if n.s not in self.seen]
+        for n in node.nexts:
+            self.seen.add(n.s)
+
+    def prune(self, node: Node):
+        for n in node.nexts:
+            self.seen.remove(n.s)
+        node.clearNexts()
 
     def uct(self, node):
         """Performs the UCT calculation
