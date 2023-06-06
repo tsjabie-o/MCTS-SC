@@ -169,7 +169,6 @@ class State():
             case "C":
                 return Utils.distance(self.square[p1], self.square[p2]) + Utils.distance(self.square[p1], self.center)
 
-    
     def __repr__(self) -> str:
         """The representation of an object of class State
         
@@ -180,5 +179,8 @@ class State():
         """
         repr = ""
         for p in self.ps:
-            repr += f"{p} at square {self.square[p]}, with {self.caps[p]} captures left\n"
+            repr += f"{p}-{self.square[p]}-{self.caps[p]}\n"
         return repr
+    
+    def __hash__(self) -> int:
+        return hash(self.__repr__())
