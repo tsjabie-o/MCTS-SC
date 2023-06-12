@@ -33,6 +33,12 @@ class State():
         
         self.center = center
 
+        # making a direct reference to the king
+        self.king = None
+        for p in self.ps:
+            if p.type == 6:
+                self.king = p
+
     def set_square(self, square):
         """Changes self.square and updates other attributes
         
@@ -128,7 +134,15 @@ class State():
         Returns:
             A bool indicating whether this is a terminal state, i.e. no more actions can be taken
         """
-        return len(self.ps) == 1 or len(self.getActions()) == 0
+        return len(self.ps) == 1 or len(self.getActions()) == 0 or self.kingStuck()
+    
+    def kingStuck(self):
+        """If the king cannot make a capture, no win is possbile
+        """
+        for p in self.ps:
+            if self.valCap(self.king, p):
+                return False
+        return True
 
     def valCap(self, p1: Piece, p2: Piece) -> bool:
         """Determines whether a certain capture is valid in this state

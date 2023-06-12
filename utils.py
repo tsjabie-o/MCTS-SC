@@ -16,7 +16,7 @@ class Square():
         return hash(2**(self.x) * 3**(self.y))
     
 class Utils():
-    """Class with some classmethods for long but trivial computations and checks
+    """Class with some classmethods for long computations and checks
 
     These methods are mostly about implementing rules of chess and movement patterns for pieces.
     That requires long and boring code, which is why it's hidden away in this class.

@@ -78,7 +78,11 @@ class MCTS():
         self.c = c
         self.root = Node(s0, None, None)
         self.h = h
-        self.seen = set()
+        
+        # self.tree = {self.root}
+        # self.fulltree = {self.root}
+        self.visited = 0
+        # self.uni_visited = {self.root}
 
     def run(self):
         """Starts the mcts algorithm on the initial state
@@ -89,12 +93,15 @@ class MCTS():
         If a solution is found, this method calls a method to retrieve the route (sequence of actions) from the tree and returns, stopping the loop
         """
         while True:
+            self.visited += 1
             cur = self.root
             while not cur.leaf:
                 # select child with highest uct metric
                 ucts = {node: self.uct(node) for node in cur.nexts}
                 child = max(ucts, key=ucts.get)
                 cur = child
+                self.visited += 1
+                # self.uni_visited.add(cur)
 
             if cur.visits > 0 and not cur.isTerminal():
                 # has been simulated, expand node
@@ -106,6 +113,7 @@ class MCTS():
                 ucts = {node: self.uct(node) for node in cur.nexts}
                 child = max(ucts, key=ucts.get)
                 cur = child
+                self.visited += 1
                 
             # simulate that child
             v = self.simulate(cur)
@@ -150,6 +158,9 @@ class MCTS():
 
         # Keep choosing a new action as long as current state is not terminal
         while(not cur.isTerminal()):
+            self.visited += 1
+            # self.uni_visited.add(cur)
+
             if self.h is not None:
                 # use heuristics
                 hvals = {next: cur.s.heuristic(self.h, next.prevAction[0], next.prevAction[1]) for next in cur.nexts}
@@ -179,7 +190,9 @@ class MCTS():
         cur = node
         cur.wins += v
         cur.visits += 1
+        self.visited += 1
         while cur.parent is not None:
+            self.visited += 1
             cur = cur.parent
             cur.wins += v
             cur.visits += 1
@@ -195,13 +208,14 @@ class MCTS():
         node.getNexts()
 
         # manage seen states
-        node.nexts = [n for n in node.nexts if n.s not in self.seen]
-        for n in node.nexts:
-            self.seen.add(n.s)
+        # node.nexts = [n for n in node.nexts if n.s not in self.tree]
+        # for n in node.nexts:
+            # self.tree.add(n.s)
+            # self.fulltree.add(n.s)
 
     def prune(self, node: Node):
-        for n in node.nexts:
-            self.seen.remove(n.s)
+        # for n in node.nexts:
+            # self.tree.remove(n.s)
         node.clearNexts()
 
     def uct(self, node):

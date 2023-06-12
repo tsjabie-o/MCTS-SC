@@ -3,6 +3,7 @@ from utils import Square, Utils
 from state import State
 import random as rd
 
+
 class Generator():
     """Generates starting states based on certain preconditions
     """
