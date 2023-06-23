@@ -23,15 +23,17 @@ class State():
         caps = dict()
         k = None
 
+        ls = sorted(ls)
+
         for l in ls:
             p = Piece(l.split("-")[0])
             if p.type == 6: k = p
             square[p] = Square(int(l.split("-")[1].split(",")[0]), int(l.split("-")[1].split(",")[1]))
             caps[p] = int(l.split("-")[2])
 
-        return cls(square, caps, center=square[k])
+        return cls(square, caps)
 
-    def __init__(self, square: dict, caps = None, center = None):
+    def __init__(self, square: dict, caps = None):
         """Initialises a State object
 
         Args:
@@ -43,13 +45,15 @@ class State():
         # the set of pieces self.ps and set of squares self.qs can be inferred from self.square
         self.ps = {p for p in self.square}
         self.qs = {self.square[p] for p in self.square}
+        self.topiece = {(q:=self.square[p]):p for p in self.square}
 
         if caps is not None:
             self.caps = caps
         else:
             self.caps = {p: 2 for p in self.ps}
+
+        self.capsfromq = {q:self.caps[self.topiece[q]] for q in self.qs}
         
-        self.center = center
 
         # making a direct reference to the king
         self.king = None
@@ -130,7 +134,6 @@ class State():
         caps2.pop(p2)
 
         s2 = State(square2, caps2)
-        s2.center = self.center
         return s2
     
     def isGoal(self) -> bool:
@@ -186,7 +189,6 @@ class State():
         """Implementation of the Heuristics
         
         Rank: Favours low-ranked pieces capturing low-ranked pieces.
-        Center: Favours pieces moving towards the center and pieces capturing far away pieces.
 
         Args:
             p1: the piece doing the capturing
@@ -198,8 +200,6 @@ class State():
         match h:
             case "R":
                 return 1/(p1.rank + self.caps[p2] * p2.rank)
-            case "C":
-                return Utils.distance(self.square[p1], self.square[p2]) + Utils.distance(self.square[p1], self.center)
 
     def __repr__(self) -> str:
         """The representation of an object of class State
@@ -209,10 +209,23 @@ class State():
         Returns:
             A string representation
         """
-        repr = ""
-        for p in self.ps:
-            repr += f"{p}-{self.square[p]}-{self.caps[p]}\n"
-        return repr
+        # repr = ""
+        # ps = sorted(list(self.ps))
+        # for p in ps:
+        #     repr += f"{p}-{self.square[p]}-{self.caps[p]}\n"
+        # return repr
+        rep = [(q, (t:=self.topiece[q].type), (c:=self.capsfromq[q])) for q in self.qs]
+        rep = sorted(rep, key=lambda x:x[0])
+        return str(rep)
     
     def __hash__(self) -> int:
         return hash(self.__repr__())
+        # rep = [str((q, (t:=self.topiece[q].type), (c:=self.capsfromq[q]))) for q in self.qs]
+
+    
+    def __eq__(self, other):
+        rep1 = [(q, (t:=self.topiece[q].type), (c:=self.capsfromq[q])) for q in self.qs]
+        rep1 = sorted(rep1, key=lambda x:x[0])
+        rep2 = [(q, (t:=other.topiece[q].type), (c:=other.capsfromq[q])) for q in other.qs]
+        rep2 = sorted(rep2, key=lambda x:x[0])
+        return rep1 == rep2

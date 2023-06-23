@@ -15,6 +15,11 @@ class Square():
         # prime factorisation so unique
         return hash(2**(self.x) * 3**(self.y))
     
+    def __lt__(self, other):
+        if self.x > other.x: return False
+        if self.x < other.x: return True
+        if self.x == other.x: return self.y < other.y
+    
 class Utils():
     """Class with some classmethods for long computations and checks
 

@@ -54,3 +54,6 @@ class Piece():
             A string containing information about the type and rank of the piece
         """
         return f"{Piece.toType[self.type]}"
+
+    def __lt__(self, other):
+        return self.type < other.type

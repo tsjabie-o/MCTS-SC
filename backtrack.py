@@ -10,6 +10,7 @@ class Backtrack():
         self.h = h
         self.root = Node(self.s0, None, None)
         self.visited = 0
+        self.tree = {self.root.s}
     
     def run(self):
         if not self.run_rec(self.root):
@@ -27,12 +28,25 @@ class Backtrack():
             return False
         
         node.getNexts()
+        # s1 = len(node.nexts)
+        
+        # for n in node.nexts:
+        #     if n.s in self.tree:
+        #         raise Exception('double')
+        # node.nexts = [n for n in node.nexts if n.s not in self.tree]
+        # s2 = len(node.nexts)
+        
+        # if s2 != s1: raise Exception("difference found")
+        
+        for n in node.nexts:
+            self.tree.add(n.s)
         
         if self.h is not None:
             # order the .nexts list by heuristic value
             node.nexts = {next: node.s.heuristic(self.h, next.prevAction[0], next.prevAction[1]) for next in node.nexts}
-            node.nexts = [node[0] for node in sorted(node.nexts.items(), key=lambda x:x[1])]
+            node.nexts = [node[0] for node in sorted(node.nexts.items(), key=lambda x:x[1], reverse=True)]
 
+        # print(f"children of {node}: {node.nexts}")
     
         # Iterate over the children nodes
         for child in node.nexts:
@@ -40,7 +54,8 @@ class Backtrack():
             found_solution = self.run_rec(child)
             if found_solution:
                 return True
-            
+        
+        # print(f"no solution found in {node}")
         node.clearNexts()
 
         return False
