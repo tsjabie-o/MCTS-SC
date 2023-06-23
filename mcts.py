@@ -78,10 +78,9 @@ class MCTS():
         self.c = c
         self.root = Node(s0, None, None)
         self.h = h
-        
-        # self.fulltree = {self.root}
+
+        self.tree = {self.root.s}        
         self.visited = 0
-        # self.uni_visited = {self.root}
 
     def run(self):
         """Starts the mcts algorithm on the initial state
@@ -94,7 +93,7 @@ class MCTS():
         while True:
             self.visited += 1
             cur = self.root
-            while not cur.leaf:
+            while len(cur.nexts) > 0:
                 if rd.randint(0,100) <= 5:
                     # select random child
                     child = rd.choice(cur.nexts)
@@ -105,24 +104,24 @@ class MCTS():
 
                 cur = child
                 self.visited += 1
-                # self.uni_visited.add(cur)
 
-            if cur.visits > 0 and not cur.isTerminal():
+            if cur.visits > 0:
                 # has been simulated, expand node
                 self.expand(cur)
-                cur.leaf = False
-                
-                # not a losing/terminal state
+                if len(cur.nexts) > 0:
+                    cur.leaf = False
+                    
+                    # not a losing/terminal state
 
-                if rd.randint(0,100) <= 10:
-                    # select random child
-                    child = rd.choice(cur.nexts)
-                else:
-                    # select child with highest uct metric
-                    ucts = {node: self.uct(node) for node in cur.nexts}
-                    child = max(ucts, key=ucts.get)
-                cur = child
-                self.visited += 1
+                    if rd.randint(0,100) <= 10:
+                        # select random child
+                        child = rd.choice(cur.nexts)
+                    else:
+                        # select child with highest uct metric
+                        ucts = {node: self.uct(node) for node in cur.nexts}
+                        child = max(ucts, key=ucts.get)
+                    cur = child
+                    self.visited += 1
                 
             # simulate that child
             v = self.simulate(cur)
@@ -162,13 +161,12 @@ class MCTS():
         Returns:
             the value of the terminal state.
         """
-        self.expand(node)
+        node.getNexts()
         cur = node
 
         # Keep choosing a new action as long as current state is not terminal
-        while(not cur.isTerminal()):
+        while(len(cur.nexts)!=0):
             self.visited += 1
-            # self.uni_visited.add(cur)
 
             if self.h is not None:
                 # use heuristics
@@ -178,13 +176,18 @@ class MCTS():
                 # uniform random
                 next = rd.choice(cur.nexts)
             
-            self.prune(cur)
+            # self.prune(cur)
+            # cur = next
+            # self.expand(cur)
+
+            cur.clearNexts()
             cur = next
-            self.expand(cur)
+            cur.getNexts()
         
-        # leaf node, get value win ratio or just 1
+        # terminal node, get value win ratio or just 1
         v = (len(self.root.s.ps) - len(cur.s.ps))/len(self.root.s.ps) if not cur.s.isGoal() else 1
-        self.prune(cur)
+        # self.prune(cur)
+        cur.clearNexts()
         return v
 
     def backprop(self, node: Node, v):
@@ -215,10 +218,14 @@ class MCTS():
             node: the node to expand
             """
         node.getNexts()
-
-        # manage seen states
+        node.nexts = [n for n in node.nexts if n.s not in self.tree]
+        
+        for n in node.nexts:
+            self.tree.add(n.s)
 
     def prune(self, node: Node):
+        for n in node.nexts:
+            self.tree.remove(n.s)
         node.clearNexts()
 
     def uct(self, node):

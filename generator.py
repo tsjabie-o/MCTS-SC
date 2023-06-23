@@ -69,7 +69,7 @@ class Generator():
             # perform expansion with p, s
             self.expand(p, s, ps, qs, caps, square)
 
-        s0 = State(square, center = square[k])
+        s0 = State(square)
         return s0
 
     def expand(self, p, q, ps, qs, caps, square):

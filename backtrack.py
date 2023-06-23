@@ -28,15 +28,7 @@ class Backtrack():
             return False
         
         node.getNexts()
-        # s1 = len(node.nexts)
-        
-        # for n in node.nexts:
-        #     if n.s in self.tree:
-        #         raise Exception('double')
-        # node.nexts = [n for n in node.nexts if n.s not in self.tree]
-        # s2 = len(node.nexts)
-        
-        # if s2 != s1: raise Exception("difference found")
+        node.nexts = [n for n in node.nexts if n.s not in self.tree]
         
         for n in node.nexts:
             self.tree.add(n.s)

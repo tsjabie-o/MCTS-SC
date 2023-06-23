@@ -103,6 +103,8 @@ class State():
         Returns:
             A dictionary mapping captures of the form (p1: Piece, p2: Piece) to states as determined by self.nextState()
         """
+        if self.isTerminal():
+            return dict()
         actions = self.getActions()
         nexts = {(p1, p2): self.nextState(p1, p2) for (p1, p2) in actions}
         return nexts
