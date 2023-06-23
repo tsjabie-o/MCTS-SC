@@ -79,7 +79,6 @@ class MCTS():
         self.root = Node(s0, None, None)
         self.h = h
         
-        # self.tree = {self.root}
         # self.fulltree = {self.root}
         self.visited = 0
         # self.uni_visited = {self.root}
@@ -96,9 +95,14 @@ class MCTS():
             self.visited += 1
             cur = self.root
             while not cur.leaf:
-                # select child with highest uct metric
-                ucts = {node: self.uct(node) for node in cur.nexts}
-                child = max(ucts, key=ucts.get)
+                if rd.randint(0,100) <= 5:
+                    # select random child
+                    child = rd.choice(cur.nexts)
+                else:
+                    # select child with highest uct metric
+                    ucts = {node: self.uct(node) for node in cur.nexts}
+                    child = max(ucts, key=ucts.get)
+
                 cur = child
                 self.visited += 1
                 # self.uni_visited.add(cur)
@@ -109,9 +113,14 @@ class MCTS():
                 cur.leaf = False
                 
                 # not a losing/terminal state
-                # select child with highest uct metric
-                ucts = {node: self.uct(node) for node in cur.nexts}
-                child = max(ucts, key=ucts.get)
+
+                if rd.randint(0,100) <= 10:
+                    # select random child
+                    child = rd.choice(cur.nexts)
+                else:
+                    # select child with highest uct metric
+                    ucts = {node: self.uct(node) for node in cur.nexts}
+                    child = max(ucts, key=ucts.get)
                 cur = child
                 self.visited += 1
                 
@@ -192,10 +201,10 @@ class MCTS():
         cur.visits += 1
         self.visited += 1
         while cur.parent is not None:
-            self.visited += 1
             cur = cur.parent
             cur.wins += v
             cur.visits += 1
+            self.visited += 1
 
     def expand(self, node: Node):
         """Performs the expansion phase of mcts
@@ -208,14 +217,8 @@ class MCTS():
         node.getNexts()
 
         # manage seen states
-        # node.nexts = [n for n in node.nexts if n.s not in self.tree]
-        # for n in node.nexts:
-            # self.tree.add(n.s)
-            # self.fulltree.add(n.s)
 
     def prune(self, node: Node):
-        # for n in node.nexts:
-            # self.tree.remove(n.s)
         node.clearNexts()
 
     def uct(self, node):

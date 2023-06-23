@@ -1,5 +1,5 @@
 from pieces import Piece
-from utils import Utils
+from utils import Utils, Square
 
 class State():
     """A class which represents a state in a Solo Chess game.
@@ -12,6 +12,24 @@ class State():
         square: a dictionary which maps a piece to a square
         caps: a dictionary which maps a piece to the amount of captures it has left
     """
+
+    @classmethod
+    def fromFile(cls, fn):
+        ls = []
+        with open(fn) as file:
+            ls = [l for l in file]
+
+        square = dict()
+        caps = dict()
+        k = None
+
+        for l in ls:
+            p = Piece(l.split("-")[0])
+            if p.type == 6: k = p
+            square[p] = Square(int(l.split("-")[1].split(",")[0]), int(l.split("-")[1].split(",")[1]))
+            caps[p] = int(l.split("-")[2])
+
+        return cls(square, caps, center=square[k])
 
     def __init__(self, square: dict, caps = None, center = None):
         """Initialises a State object
