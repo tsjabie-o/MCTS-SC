@@ -5,12 +5,13 @@ class Backtrack():
     
     This should be roughly the same implementation as that of Verlaan
     """
-    def __init__(self, s0, h=None):
+    def __init__(self, s0, h=None, _tree = True):
         self.s0 = s0
         self.h = h
         self.root = Node(self.s0, None, None)
         self.visited = 0
         self.tree = {self.root.s}
+        self._tree = _tree
     
     def run(self):
         if not self.run_rec(self.root):
@@ -28,10 +29,12 @@ class Backtrack():
             return False
         
         node.getNexts()
-        node.nexts = [n for n in node.nexts if n.s not in self.tree]
-        
-        for n in node.nexts:
-            self.tree.add(n.s)
+
+        if self._tree:
+            node.nexts = [n for n in node.nexts if n.s not in self.tree]
+            
+            for n in node.nexts:
+                self.tree.add(n.s)
         
         if self.h is not None:
             # order the .nexts list by heuristic value
